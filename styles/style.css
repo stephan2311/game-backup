@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#board {
+  background-color: blanchedalmond;
+  height: 100vh;
+}
+
+#results {
+  background-color: blanchedalmond;
+}
+
+.player {
+    background-image: url(/src/mash_tun.png);
+    position: absolute;
+}
+
+.water {
+    background-image: url(/src/water.png);
+    position: absolute;
+}
+
+.malt {
+    background-image: url(/src/malt.png);
+    position: absolute;
+}
+
+.hops {
+  background-image: url(/src/hops.png);
+  position: absolute;
+}
