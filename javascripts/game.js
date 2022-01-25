@@ -3,9 +3,11 @@ class Game {
         this.waterArr = [];
         this.maltArr = [];
         this.hopsArr = [];
+        this.waterCount = 0;
+        this.maltCount = 0;
+        this.hopsCount = 0;
         this.timer = 0;
-        this.refreshRate = 1000 / 60; // 60 frames per second
-        this.obstacleFreq = 80;
+        this.refreshRate = 1500 / 60; // 60 frames per second
     }
 
     start() {
@@ -18,39 +20,70 @@ class Game {
         setInterval(() => {
             this.timer++;
 
-            if (this.timer % Math.floor(Math.random() * 500) === 0) {
-                const water = new Obstacle();
-                const malt = new Obstacle();
-                const hops = new Obstacle();
-                this.waterArr.push(water);
-                this.maltArr.push(malt);
-                this.hopsArr.push(hops);
-                water.domElement = this.createDomElm(water);
-                this.drawDomElm(water);
-                malt.domElement = this.createDomElm(malt);
-                this.drawDomElm(malt);
-                hops.domElement = this.createDomElm(hops);
-                this.drawDomElm(hops);
+            if (this.timer % Math.floor(Math.random() * 250) === 0) {
+                const newWater = new Water();
+                this.waterArr.push(newWater);
+                newWater.domElement = this.createDomElm(newWater);
+                this.drawDomElm(newWater);
             }
 
-            this.waterArr.forEach((water) => {
-                water.moveDown();
-                this.drawDomElm(water);
-                this.detectCollisionWithPlayer(water);
-            });
-
-            this.maltArr.forEach((malt) => {
-                malt.moveDown();
-                this.drawDomElm(malt);
-                this.detectCollisionWithPlayer(malt);
-            });
-
-            this.hopsArr.forEach((hops) => {
-                hops.moveDown();
-                this.drawDomElm(hops);
-                this.detectCollisionWithPlayer(hops);
+            this.waterArr.forEach((elm) => {
+                elm.moveDown();
+                this.drawDomElm(elm);
+                if (this.collision(this.player, elm)) {
+                    this.waterCount += 1;
+                    console.log(`Water collected: ${this.waterCount}`);
+                    elm.domElement.remove();
+                }
+                elm.removeObstacle(elm);
             });
         }, this.refreshRate);
+
+        setInterval(() => {
+            this.timer++;
+
+            if (this.timer % Math.floor(Math.random() * 500) === 0) {
+                const newMalt = new Malt();
+                this.maltArr.push(newMalt);
+                newMalt.domElement = this.createDomElm(newMalt);
+                this.drawDomElm(newMalt);
+            }
+
+            this.maltArr.forEach((elm) => {
+                elm.moveDown();
+                this.drawDomElm(elm);
+                if (this.collision(this.player, elm)) {
+                    this.maltCount += 1;
+                    console.log(`Malt collected: ${this.maltCount}`);
+                    elm.domElement.remove();
+                }
+                elm.removeObstacle(elm);
+            });
+        }, this.refreshRate);
+
+        setInterval(() => {
+            this.timer++;
+
+            if (this.timer % Math.floor(Math.random() * 1000) === 0) {
+                const newHops = new Hops();
+                this.waterArr.push(newHops);
+                newHops.domElement = this.createDomElm(newHops);
+                this.drawDomElm(newHops);
+            }
+
+            this.hopsArr.forEach((elm) => {
+                elm.moveDown();
+                this.drawDomElm(elm);
+                if (this.collision(this.player, elm)) {
+                    this.hopsCount += 1;
+                    console.log(`Hops collected: ${this.hopsCount}`);
+                    elm.domElement.remove();
+                }
+                elm.removeObstacle(elm);
+
+            });
+        }, this.refreshRate);
+
     }
 
 
@@ -66,13 +99,13 @@ class Game {
     }
 
     createDomElm(instance) {
-        const htmlTag = document.createElement("div"); // create html element (not added to the dom yet)
-        htmlTag.className = instance.className; // add class (so that we can reuse this function to create different types of elements in the dom, eg. player, obstacles....)
+        const htmlTag = document.createElement("div");
+        htmlTag.className = instance.className;
         htmlTag.style.width = instance.width + "vw";
         htmlTag.style.height = instance.height + "vh";
-        const board = document.getElementById("board"); // get a reference to the parent container
+        const board = document.getElementById("board");
         board.appendChild(htmlTag);
-        return htmlTag; // append the element to the dom
+        return htmlTag;
     }
 
     drawDomElm(instance) {
@@ -80,26 +113,26 @@ class Game {
         instance.domElement.style.bottom = instance.positionY + "vh";
     }
 
-    detectCollisionWithPlayer(element) {
-        let counter = 0;
+    collision(instance1, instance2) {
         if (
-            this.player.positionX < element.positionX + element.width &&
-            this.player.positionX + this.player.width > element.positionX &&
-            this.player.positionY < element.positionY + element.height &&
-            this.player.height + this.player.positionY > element.positionY
+            instance1.positionX < instance2.positionX + instance2.width &&
+            instance1.positionY < instance2.positionY + instance2.height &&
+            instance2.positionX < instance1.positionX + instance1.width &&
+            instance2.positionY < instance1.positionY + instance1.height
         ) {
-            counter++;
+            return true;
         }
     }
+
 }
 
 class Player {
     constructor() {
         this.className = "player";
-        this.positionX = 0;
-        this.positionY = 0;
+        this.positionX = 50;
+        this.positionY = 7;
         this.width = 5;
-        this.height = 10;
+        this.height = 12;
         this.domElement = null;
     }
 
@@ -112,17 +145,48 @@ class Player {
     }
 }
 
-class Obstacle {
+class ParentObstacle {
     constructor() {
-        this.positionX = Math.floor(Math.random() * 91);
-        this.positionY = 100;
-        this.width = 5;
-        this.height = 5;
+        this.positionX = (Math.floor(Math.random() * 80) + 10);
+        this.positionY = 70;
         this.domElement = null;
     }
 
     moveDown() {
-        this.positionY -= 1;
+        this.positionY -= 0.5;
+    }
+
+    removeObstacle(elm) {
+        if (elm.positionY < 7) {
+            elm.domElement.remove();
+        }
+    }
+}
+
+class Water extends ParentObstacle {
+    constructor(positionX, positionY, domElement) {
+        super(positionX, positionY, domElement);
+        this.className = "water";
+        this.width = 3;
+        this.height = 8;
+    }
+}
+
+class Malt extends ParentObstacle {
+    constructor(positionX, positionY, domElement) {
+        super(positionX, positionY, domElement);
+        this.className = "malt";
+        this.width = 3;
+        this.height = 5;
+    }
+}
+
+class Hops extends ParentObstacle {
+    constructor(positionX, positionY, domElement) {
+        super(positionX, positionY, domElement);
+        this.className = "hops";
+        this.width = 3;
+        this.height = 5;
     }
 }
 
