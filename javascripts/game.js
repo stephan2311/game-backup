@@ -17,6 +17,7 @@ class Game {
 
         this.addEventListeners();
 
+        // Water
         setInterval(() => {
             this.timer++;
 
@@ -30,15 +31,16 @@ class Game {
             this.waterArr.forEach((elm) => {
                 elm.moveDown();
                 this.drawDomElm(elm);
-                if (this.collision(this.player, elm)) {
-                    this.waterCount += 1;
-                    console.log(`Water collected: ${this.waterCount}`);
+                if (this.collision(elm)) {
+                    this.countWater();
+                    this.removeWaterFromArr(this.waterArr, elm);
                     elm.domElement.remove();
                 }
                 elm.removeObstacle(elm);
             });
         }, this.refreshRate);
 
+        // Malt
         setInterval(() => {
             this.timer++;
 
@@ -52,21 +54,22 @@ class Game {
             this.maltArr.forEach((elm) => {
                 elm.moveDown();
                 this.drawDomElm(elm);
-                if (this.collision(this.player, elm)) {
-                    this.maltCount += 1;
-                    console.log(`Malt collected: ${this.maltCount}`);
+                if (this.collision(elm)) {
+                    this.countMalt();
+                    this.removeMaltFromArr(this.maltArr, elm);
                     elm.domElement.remove();
                 }
                 elm.removeObstacle(elm);
             });
         }, this.refreshRate);
 
+        // Hops
         setInterval(() => {
             this.timer++;
 
             if (this.timer % Math.floor(Math.random() * 1000) === 0) {
                 const newHops = new Hops();
-                this.waterArr.push(newHops);
+                this.hopsArr.push(newHops);
                 newHops.domElement = this.createDomElm(newHops);
                 this.drawDomElm(newHops);
             }
@@ -74,9 +77,9 @@ class Game {
             this.hopsArr.forEach((elm) => {
                 elm.moveDown();
                 this.drawDomElm(elm);
-                if (this.collision(this.player, elm)) {
-                    this.hopsCount += 1;
-                    console.log(`Hops collected: ${this.hopsCount}`);
+                if (this.collision(elm)) {
+                    this.countHops();
+                    this.removeHopsFromArr(this.hopsArr, elm);
                     elm.domElement.remove();
                 }
                 elm.removeObstacle(elm);
@@ -84,8 +87,20 @@ class Game {
             });
         }, this.refreshRate);
 
-    }
+        let seconds = 30;
+        function tick() {
+            let timer = document.getElementById("timer");
+            seconds--;
+            timer.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+            if (seconds > 0) {
+                setTimeout(tick, 1000);
+            } else {
+                alert("You lost, we are missing ingredients!!!");
+            }
+        }
+        tick();
 
+    }
 
     addEventListeners() {
         document.addEventListener("keydown", (event) => {
@@ -113,15 +128,54 @@ class Game {
         instance.domElement.style.bottom = instance.positionY + "vh";
     }
 
-    collision(instance1, instance2) {
+    collision(elm) {
         if (
-            instance1.positionX < instance2.positionX + instance2.width &&
-            instance1.positionY < instance2.positionY + instance2.height &&
-            instance2.positionX < instance1.positionX + instance1.width &&
-            instance2.positionY < instance1.positionY + instance1.height
+            this.player.positionX < elm.positionX + elm.width &&
+            this.player.positionY < elm.positionY + elm.height &&
+            elm.positionX < this.player.positionX + this.player.width &&
+            elm.positionY < this.player.positionY + this.player.height
         ) {
             return true;
         }
+    }
+
+    removeWaterFromArr(waterArr, elm) {
+        let index = waterArr.indexOf(elm);
+        if (index > -1) {
+            waterArr.splice(index, 1);
+        }
+    }
+
+    removeMaltFromArr(maltArr, elm) {
+        let index = maltArr.indexOf(elm);
+        if (index > -1) {
+            maltArr.splice(index, 1);
+        }
+    }
+
+    removeHopsFromArr(hopsArr, elm) {
+        let index = hopsArr.indexOf(elm);
+        if (index > -1) {
+            hopsArr.splice(index, 1);
+        }
+    }
+
+    countWater() {
+        this.waterCount += 1;
+        let count = document.getElementById('water-coll');
+        count.innerHTML = this.waterCount;
+    }
+
+    countMalt() {
+        this.maltCount += 1;
+        let count = document.getElementById('malt-coll');
+        count.innerHTML = this.maltCount;
+    }
+
+    countHops() {
+        this.hopsCount += 1;
+        let count = document.getElementById('hops-coll');
+        count.innerHTML = this.hopsCount;
     }
 
 }
@@ -137,23 +191,23 @@ class Player {
     }
 
     moveLeft() {
-        this.positionX -= 5;
+        this.positionX -= 3;
     }
 
     moveRight() {
-        this.positionX += 5;
+        this.positionX += 3;
     }
 }
 
 class ParentObstacle {
     constructor() {
-        this.positionX = (Math.floor(Math.random() * 80) + 10);
+        this.positionX = (Math.floor(Math.random() * 85) + 15);
         this.positionY = 70;
         this.domElement = null;
     }
 
     moveDown() {
-        this.positionY -= 0.5;
+        this.positionY -= 1;
     }
 
     removeObstacle(elm) {
@@ -185,7 +239,7 @@ class Hops extends ParentObstacle {
     constructor(positionX, positionY, domElement) {
         super(positionX, positionY, domElement);
         this.className = "hops";
-        this.width = 3;
+        this.width = 2;
         this.height = 5;
     }
 }

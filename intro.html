@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Brewing Game</title>
 
-        <link rel="stylesheet" href="./styles/style.css" />
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brewing Game</title>
 
-        <ul class="score">
-            <li>Water Collected: <span class="water">0</span></li>
-            <li>Malt Collected: <span class="malt">0</span></li>
-            <li>Hops Collected: <span class="hops">0</span></li>
-        </ul>
+    <link rel="stylesheet" href="./styles/style.css" />
+</head>
 
-        <div id="board"></div>
-        
-        
+<body>
+    <h1>Brewing Game</h1>
+    <div class="buttons">
+        <button>Pils</button>
+        <button>Stout</button>
+        <button>IPA</button>
+    </div>
+    <div class="flex-container">
+        <div class="flex-item sidebar">
+            <div class="sidebar-item">
+                <p><strong>Collected Ingredients:</strong></p>
+                <ul>
+                    <li>Water: <span id="water-coll"> 0</span></li>
+                    <li>Malt: <span id="malt-coll"> 0</span></li>
+                    <li>Hops: <span id="hops-coll"> 0</span></li>
+                </ul>
+            </div>
+            <div class="sidebar-item"> Countdown: <span id="timer">0:30</span></div>
+        </div>
+        <div class="flex-item" id="board"></div>
+    </div>
+    <script src="./javascripts/game.js">
+    </script>
+</body>
 
-
-        <script src="./javascripts/game.js">
-            
-        </script>
-    </body>
-    </html>
+</html>
