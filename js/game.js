@@ -7,10 +7,20 @@ class Game {
         this.maltCount = 0;
         this.hopsCount = 0;
         this.timer = 0;
+        this.level = 1;
         this.refreshRate = 1500 / 60; // 60 frames per second
+        this.resultObj = { water: 0, malt: 0, hops: 0 };
+        this.givenObj = { water: 3, malt: 2, hops: 1 };
     }
 
     start() {
+
+        let waterNeeded = document.getElementById('water-needed');
+        waterNeeded.innerHTML = this.givenObj.water;
+        let maltNeeded = document.getElementById('malt-needed');
+        maltNeeded.innerHTML = this.givenObj.malt;
+        let hopsNeeded = document.getElementById('hops-needed');
+        hopsNeeded.innerHTML = this.givenObj.hops;
         this.player = new Player();
         this.player.domElement = this.createDomElm(this.player);
         this.drawDomElm(this.player);
@@ -35,6 +45,7 @@ class Game {
                     this.countWater();
                     this.removeWaterFromArr(this.waterArr, elm);
                     elm.domElement.remove();
+                    this.compareObj();
                 }
                 elm.removeObstacle(elm);
             });
@@ -58,6 +69,7 @@ class Game {
                     this.countMalt();
                     this.removeMaltFromArr(this.maltArr, elm);
                     elm.domElement.remove();
+                    this.compareObj();
                 }
                 elm.removeObstacle(elm);
             });
@@ -81,24 +93,12 @@ class Game {
                     this.countHops();
                     this.removeHopsFromArr(this.hopsArr, elm);
                     elm.domElement.remove();
+                    this.compareObj();
                 }
                 elm.removeObstacle(elm);
 
             });
         }, this.refreshRate);
-
-        let seconds = 30;
-        function tick() {
-            let timer = document.getElementById("timer");
-            seconds--;
-            timer.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
-            if (seconds > 0) {
-                setTimeout(tick, 1000);
-            } else {
-                alert("You lost, we are missing ingredients!!!");
-            }
-        }
-        tick();
 
     }
 
@@ -111,6 +111,8 @@ class Game {
             }
             this.drawDomElm(this.player);
         });
+        // document.addEventListener("click", myScript);
+
     }
 
     createDomElm(instance) {
@@ -161,21 +163,46 @@ class Game {
     }
 
     countWater() {
-        this.waterCount += 1;
         let count = document.getElementById('water-coll');
         count.innerHTML = this.waterCount;
+        this.resultObj.water += 1;
     }
 
     countMalt() {
-        this.maltCount += 1;
         let count = document.getElementById('malt-coll');
         count.innerHTML = this.maltCount;
+        this.resultObj.malt += 1;
     }
 
     countHops() {
-        this.hopsCount += 1;
         let count = document.getElementById('hops-coll');
         count.innerHTML = this.hopsCount;
+        this.resultObj.hops += 1;
+    }
+
+    compareObj() {
+        if (JSON.stringify(this.resultObj) === JSON.stringify(this.givenObj)) {
+            this.level++;
+            console.log(this.level);
+            let levelCount = document.getElementById('level');
+            levelCount.innerHTML = this.level;
+            for (let key in this.resultObj) {
+                this.resultObj[key] = 0;
+            }
+        }
+    }
+
+    timer() {
+        this.seconds = 60;
+        function tick() {
+            let timer = document.getElementById("timer");
+            seconds--;
+            timer.innerHTML = "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+            if (seconds > 0) {
+                setTimeout(tick, 1000);
+            }
+        }
+        tick();
     }
 
 }
